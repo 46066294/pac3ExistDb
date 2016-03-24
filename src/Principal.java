@@ -10,13 +10,15 @@ import javax.xml.xquery.*;
 import java.io.File;
 import java.util.Scanner;
 
-//Part 1: MODE XQJ
+
 public class Principal {
     public static String nomFitxer = "books.xml";
     public static String ipMaquina = "";
 
-    private static String URI = "xmldb:exist://" + ipMaquina + ":8080/exist/xmlrpc";
-    private static String driver = "org.exist.xmldb.DatabaseImpl";
+    //public static String URI = "xmldb:exist://" + ipMaquina + ":8080/exist/xmlrpc";
+    public static String URI = "xmldb:exist://192.168.1.102:8080/exist/xmlrpc";
+
+    public static String driver = "org.exist.xmldb.DatabaseImpl";
 
     public static XQConnection conn = null;
 
@@ -24,6 +26,7 @@ public class Principal {
 
         try {
 
+            iniciarConexio();
             afegirFitxer();
 
         } catch (XMLDBException e) {
@@ -36,9 +39,8 @@ public class Principal {
             e.printStackTrace();
         }
 
-        iniciarConexio();
         p1();
-        p2();
+        //p2();
         //p3();
         tancarConexio();
 
@@ -48,6 +50,8 @@ public class Principal {
     //::::::::::METODES::::::::::
 
     private static void afegirFitxer() throws XMLDBException, ClassNotFoundException, IllegalAccessException, InstantiationException{
+        System.out.println("\n...creant nova col·leccio");
+
         File f = new File("books.xml");
 
         // initialize database driver
@@ -59,15 +63,15 @@ public class Principal {
         DatabaseManager.registerDatabase(database);
 
         //crear la collecion
-        Collection parent = DatabaseManager.getCollection(URI + "/db","admin","dionis");//padre de la coleccion
+        Collection parent = DatabaseManager.getCollection(URI + "/db","admin","marc");//padre de la coleccion
         CollectionManagementService c = (CollectionManagementService) parent.getService("CollectionManagementService", "1.0");
 
-        c.createCollection("cano");//nom de la coleccio
+        c.createCollection("books_cano");//nom de la coleccio
 
-        Collection col = DatabaseManager.getCollection(URI + "/db/cano", "admin", "dionis");
+        Collection col = DatabaseManager.getCollection(URI + "/db/books_cano", "admin", "marc");
 
         //afegir el recurs que farem servir
-        Resource res = col.createResource("Cano.xml","XMLResource");
+        Resource res = col.createResource("books.xml","XMLResource");
         res.setContent(f);
         col.storeResource(res);
 
@@ -88,11 +92,12 @@ public class Principal {
         xqs.setProperty("serverName", ipMaquina);
         xqs.setProperty("port", "8080");
 
-        inputIp.close();
+        //inputIp.close();
 
-        System.out.println("...conexio OK per a IP: " + ip);
+        System.out.println("...conexio OK per a IP: " + ipMaquina);
 
     }
+
 
     private static void tancarConexio() throws XQException {
         conn.close();
@@ -101,7 +106,8 @@ public class Principal {
     //query 1
     public static void p1 () throws XQException {
 
-        String xpath = "doc('" + nomFitxer + "')/CATALOG/PLANT[AVAILABILITY = max(/CATALOG/PLANT/AVAILABILITY)]/COMMON/text()";
+        //String xpath = "doc('" + nomFitxer + "')/CATALOG/PLANT[AVAILABILITY = max(/CATALOG/PLANT/AVAILABILITY)]/COMMON/text()";
+        String xpath = "doc('" + nomFitxer + "')/CATALOG/count(/CATALOG/books)";
 
         String resultado = "";
         String linea = "";
@@ -121,7 +127,7 @@ public class Principal {
 
         }
 
-        System.out.println(resultado + " es la planta de la que tenim mes stoc");
+        System.out.println("Hi han " + resultado + " llibres");
     }
 
 
