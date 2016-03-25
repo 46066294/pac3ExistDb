@@ -1,0 +1,48 @@
+Pràctica 3 – Eines avançades de desenvolupament de
+base de dades XML (eXistsDB)
+
+
+L'objectiu d'aquesta pràctica és aprendre i aplicar coneixements
+avançats d'accés a bases de dades XML.
+Teoria: Una col·lecció és un conjunt de documents,
+estructurats de manera que forma una estructura d'arbre on
+cada document pertany a una única col·lecció. D'alguna manera es pot afirmar que igual
+que els un document XML segueix una estructura d'arbre, els sistemes natius de base de
+dades empren la mateixa estructura per a organitzar els documents dintre d'elles. Les
+col·leccions poden ser vistes com carpetes, i dins d'elles s'emmagatzemen els recursos, els
+quals poden ser XML o no (text o binaris).
+Fins ara em tractat les llibreries XQJ. Aquestes llibreries tenen l'avantatge de ser molt
+senzilles de fer servir, però només permeten fer consultes. Ens agradaria tenir eines que
+poguessin administrar la base de dades, a part també de fer consultes. Aquesta és la missió
+de la API XML:DB.
+Per a realitzar aquesta pràctica necessitareu les llibreries següents:
+● XQJ:
+● XQJapi.jar
+● XQJ2-0.0.2.jar
+● eXist-XQJ-1.0.1.jar
+● XML:DB
+● Llibreries que estan en el directori
+d'instal·lació del eXistDB
+● exist.jar
+● exist-optional.jar
+● Llibreries que estan en el directori
+d'instal·lació del eXistDB /lib/core:
+● ws-commons-util.jar
+● commons-io-2.4.jar
+● log4j-1.2.17.jar
+● xmlrpc-server-3.1.3.jar
+● xmlrpc-client-3.1.3.jar
+● xmlrpc-common-3.1.3.jar
+● xmldb.jar
+Heu de crear un programa que faci el següent:
+• Crei una col·lecció
+• Afegeixi un recurs a una col·lecció
+• Que retorni un recurs (i per exemple l'imprimeixi per pantalla)
+• Que faci una consulta en una col·lecció
+• Que faci consultes sobre una col·lecció
+HINT: Per a veure per on van els trets podeu consultar els apunts del IOC, (apartat 3.2)
+http://ioc.xtec.cat/materials/FP/Materials/2252_DAM/DAM_2252_M06/web/html/index.html
+Per a veure un exemple d'alguna cosa semblant al que es demana en l'última secció (i pot
+ser altres coses) podeu veure la web del desenvolupador d'eXist-DB (que evident no
+funciona directament)
+http://exist-db.org/exist/apps/doc/devguide_xmlrpc.xml

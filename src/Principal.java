@@ -12,14 +12,13 @@ import java.util.Scanner;
 
 
 public class Principal {
+    /*
+    S'estableixen les variables i constants globals
+    */
     public static String nomFitxer = "books.xml";
     public static String ipMaquina = "";
-
-    //public static String URI = "xmldb:exist://" + ipMaquina + ":8080/exist/xmlrpc";
-    public static String URI = "xmldb:exist://192.168.1.102:8080/exist/xmlrpc";
-
-    public static String driver = "org.exist.xmldb.DatabaseImpl";
-
+    public static String URI = "xmldb:exist://" + ipMaquina + ":8080/exist/xmlrpc";
+    public static final String DRIVER = "org.exist.xmldb.DatabaseImpl";
     public static XQConnection conn = null;
 
     public static void main(String[]args) throws XQException {
@@ -28,6 +27,12 @@ public class Principal {
 
             iniciarConexio();
             afegirFitxer();
+
+            System.out.println("\nCONSULTES:");
+
+            contarLlibres();
+            preuMesCar();
+            retornaRecurs();
 
         } catch (XMLDBException e) {
             e.printStackTrace();
@@ -39,23 +44,40 @@ public class Principal {
             e.printStackTrace();
         }
 
-        p1();
-        //p2();
-        //p3();
-        tancarConexio();
 
     }//main
 
 
     //::::::::::METODES::::::::::
 
+    //S'estableix la conexio amb existDB.
+    //ipMaquina hauria de ser "localhost" o la nostra ip
+    private static void iniciarConexio() throws XQException {
+        Scanner inputIp = new Scanner(System.in);
+        System.out.println("Entra IP:");
+        String ip = inputIp.next();
+
+        ipMaquina = ip;
+        URI = "xmldb:exist://" + ipMaquina + ":8080/exist/xmlrpc";
+
+        XQDataSource xqs = new ExistXQDataSource();
+        xqs.setProperty("serverName", ipMaquina);
+        xqs.setProperty("port", "8080");//s'estableix el port 8080
+
+        inputIp.close();
+
+        System.out.println("...iniciant conexio");
+
+    }
+
+    //Afegeixi un recurs a una col·lecció
     private static void afegirFitxer() throws XMLDBException, ClassNotFoundException, IllegalAccessException, InstantiationException{
         System.out.println("\n...creant nova col·leccio");
 
         File f = new File("books.xml");
 
-        // initialize database driver
-        Class cl = Class.forName(driver);
+        // initialize database DRIVER
+        Class cl = Class.forName(DRIVER);
         Database database = (Database) cl.newInstance();
         database.setProperty("create-database", "true");
 
@@ -75,39 +97,21 @@ public class Principal {
         res.setContent(f);
         col.storeResource(res);
 
-    }
-
-    private static void iniciarConexio() throws XQException {
-        Scanner inputIp = new Scanner(System.in);
-        System.out.println("Entra IP:");
-        String ip = inputIp.next();
-
-        /*
-        verificacio IP
-        */
-
-        ipMaquina = ip;
-
-        XQDataSource xqs = new ExistXQDataSource();
-        xqs.setProperty("serverName", ipMaquina);
-        xqs.setProperty("port", "8080");
-
-        //inputIp.close();
-
-        System.out.println("...conexio OK per a IP: " + ipMaquina);
+        System.out.println("DADES:");
+        System.out.println("\texistDB URI: " + URI);
+        System.out.println("\tlocal IP: " + ipMaquina);
+        System.out.println("\tnom de la col·leccio: " + col.getName());
+        System.out.println("\tnom del recurs: " + res.getId());
 
     }
 
 
-    private static void tancarConexio() throws XQException {
-        conn.close();
-    }
+
 
     //query 1
-    public static void p1 () throws XQException {
+    public static void contarLlibres () throws XQException {
 
-        //String xpath = "doc('" + nomFitxer + "')/CATALOG/PLANT[AVAILABILITY = max(/CATALOG/PLANT/AVAILABILITY)]/COMMON/text()";
-        String xpath = "doc('" + nomFitxer + "')/CATALOG/count(/CATALOG/books)";
+        String xpath = "doc('" + nomFitxer + "')/catalog/count(/catalog/book)";
 
         String resultado = "";
         String linea = "";
@@ -123,20 +127,22 @@ public class Principal {
 
         while (rs.next()){
             linea = rs.getItemAsString(null);
-            resultado += linea + "\n";
+            resultado += linea;
 
         }
 
-        System.out.println("Hi han " + resultado + " llibres");
+        System.out.println("1) Hi han " + resultado + " llibres");
     }
 
 
 
     //query 2
-    public static void p2 () throws XQException {
-        String xpath = "sum(doc(\"" + nomFitxer + "\")/CATALOG/PLANT/AVAILABILITY)";
+    public static void preuMesCar () throws XQException {
+
+        String xpath = "doc('" + nomFitxer + "')/catalog/max(/catalog/book/price)";
 
         String resultado = "";
+        System.out.println();
         String linea = "";
         XQDataSource xqs = new ExistXQDataSource();
         xqs.setProperty("serverName", ipMaquina);
@@ -155,7 +161,33 @@ public class Principal {
 
         }
 
-        System.out.println("Total " + resultado + " plantes en stoc.");
+        System.out.println("2) Preu del llibre mes car: " + resultado);
+    }
+
+    //imprimeix per pantalla el recurs books.xml
+    public static void retornaRecurs () throws XQException {
+
+        String xpath = "collection(\"/db/books_cano\")//catalog";
+
+
+        String resultado = "";
+        String linea = "";
+        XQDataSource xqs = new ExistXQDataSource();
+        xqs.setProperty("serverName", ipMaquina);
+        xqs.setProperty("port", "8080");
+
+        XQConnection conn = xqs.getConnection();
+
+        XQPreparedExpression xqpe = conn.prepareExpression(xpath);
+
+        XQResultSequence rs = xqpe.executeQuery();
+
+        while (rs.next()){
+            linea = rs.getItemAsString(null);
+            resultado += linea + "\n";
+        }
+
+        System.out.println("3) Recurs complet:\n" + resultado);
     }
 
 }//Principal
